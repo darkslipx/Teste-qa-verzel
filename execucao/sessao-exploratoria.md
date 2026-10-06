@@ -26,6 +26,8 @@
 | E-mail com domínio contendo símbolos (abnerduartw@!!!!.com) é aceito | BUG-04 |
 | Sobrenome composto apenas de símbolos ou números com 2 caracteres é aceito | BUG-03 |
 | Interface bloqueia a sexta unidade, mas a API aceita quantidade acima de 5 (verificado depois, na execução da API) | BUG-02 |
+| Rodada complementar: API aceita 1.000.000 unidades (API-63) e sobrenome só com números (API-65) | Reforço do BUG-02 e do BUG-03 |
+| Rodada complementar: com cupom aplicado, mudar a quantidade recalcula o desconto, e cupom expirado seguido de válido funciona (UI-31, UI-32) | Comportamento esperado |
 | Qualquer CEP de 8 dígitos é aceito | Comportamento esperado (A03) |
 | Cupom permanece aplicado após recarregar a página | Comportamento esperado (A04) |
 

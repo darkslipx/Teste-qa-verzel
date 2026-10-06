@@ -10,7 +10,7 @@
 
 | Total | Aprovados | Reprovados | Não aplicáveis |
 |---|---|---|---|
-| 30 | 25 | 4 | 1 |
+| 32 | 27 | 4 | 1 |
 
 ## Carrinho e cálculo
 
@@ -48,6 +48,8 @@
 | UI-20 | Remover cupom e aplicar novamente recalcula corretamente | CA05 | Aprovado | Sem print |
 | UI-21 | Tecla Enter no campo aplica o cupom | Usabilidade | Aprovado | Sem print |
 | UI-22 | Carrinho e cupom mantidos após recarregar a página (F5) | Ambiente | Aprovado | Sem print |
+| UI-31 | Com cupom aplicado, diminuir a quantidade de 3 para 1 recalcula o desconto (30,00, 20,00 e 10,00) e o botão "-" fica desabilitado em 1 unidade | CA01, CA10 | Aprovado | Sem print |
+| UI-32 | Cupom expirado seguido de cupom válido: exibe "Cupom expirado." e depois aplica o BEMVINDO10 normalmente | CA04, CA05 | Aprovado | Sem print |
 
 ## Finalização do pedido
 
@@ -74,4 +76,6 @@
 * **UI-22:** a documentação define apenas que o carrinho fica na aba do navegador. A permanência do cupom após recarregar foi considerada correta (A04).
 * **UI-23:** qualquer sequência de 8 dígitos é aceita (inclusive 00000000). Considerado comportamento esperado, pois a regra exige apenas o formato e não a existência do CEP (A03).
 * **UI-25, UI-26:** as prints mostram que o campo com o dado inválido não exibe mensagem de erro, enquanto o campo CEP, preenchido com 7 dígitos, exibe. Isso mostra que a validação do formulário está ativa e que o nome e o e-mail inválidos passam por ela.
+* **UI-31:** com 2 unidades (subtotal R$ 200,00) o frete de R$ 19,90 voltou a ser cobrado, o mesmo comportamento do BUG-01.
+* **UI-31, UI-32:** casos da rodada complementar, executados depois da primeira rodada.
 * **UI-30:** a navegação da loja não expõe o id do produto na URL, portanto não é possível acessar um produto inexistente pela interface. O cenário foi coberto pela API (API-03). Interpretação registrada em AMBIGUIDADES.md (A06).

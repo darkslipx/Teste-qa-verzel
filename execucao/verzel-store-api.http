@@ -874,3 +874,113 @@ DELETE {{baseUrl}}/api/produtos
 ### API-55 | Rota inexistente
 # Esperado: 404 ROTA_NAO_ENCONTRADA
 GET {{baseUrl}}/api/cupons
+
+# 09 Rodada complementar
+
+### API-56 | Pedido com cupom minusculo e espacos (CA02)
+# Esperado: 201; cupom aplicado, desconto 5.99
+POST {{baseUrl}}/api/pedidos
+Content-Type: application/json
+
+{
+  "cliente": { "nome": "Maria Silva", "email": "maria@exemplo.com", "cep": "01310-100" },
+  "itens": [ { "produtoId": "P001", "quantidade": 1 } ],
+  "cupom": "  bemvindo10  "
+}
+
+### API-57 | Pedido com produto inexistente
+# Esperado: 422 PRODUTO_NAO_ENCONTRADO, campo itens[0].produtoId
+POST {{baseUrl}}/api/pedidos
+Content-Type: application/json
+
+{
+  "cliente": { "nome": "Maria Silva", "email": "maria@exemplo.com", "cep": "01310-100" },
+  "itens": [ { "produtoId": "P999", "quantidade": 1 } ]
+}
+
+### API-58 | Pedido com item duplicado
+# Esperado: 422 ITEM_DUPLICADO
+POST {{baseUrl}}/api/pedidos
+Content-Type: application/json
+
+{
+  "cliente": { "nome": "Maria Silva", "email": "maria@exemplo.com", "cep": "01310-100" },
+  "itens": [ { "produtoId": "P001", "quantidade": 1 }, { "produtoId": "P001", "quantidade": 1 } ]
+}
+
+### API-59 | Pedido sem itens
+# Esperado: 422 ITENS_OBRIGATORIOS
+POST {{baseUrl}}/api/pedidos
+Content-Type: application/json
+
+{
+  "cliente": { "nome": "Maria Silva", "email": "maria@exemplo.com", "cep": "01310-100" },
+  "itens": []
+}
+
+### API-60 | Cupom como numero
+# Esperado: 200; aplicado false, mensagem Cupom inválido.
+POST {{baseUrl}}/api/carrinho/calcular
+Content-Type: application/json
+
+{
+  "itens": [ { "produtoId": "P001", "quantidade": 1 } ],
+  "cupom": 123
+}
+
+### API-61 | produtoId em minusculo
+# Esperado: 422 PRODUTO_NAO_ENCONTRADO (o id diferencia maiusculas)
+POST {{baseUrl}}/api/carrinho/calcular
+Content-Type: application/json
+
+{
+  "itens": [ { "produtoId": "p001", "quantidade": 1 } ]
+}
+
+### API-62 | Preco enviado no corpo e ignorado
+# Esperado: 200; precoUnitario 59.9 (o preco vem do servidor, nao do cliente)
+POST {{baseUrl}}/api/carrinho/calcular
+Content-Type: application/json
+
+{
+  "itens": [ { "produtoId": "P001", "quantidade": 1, "precoUnitario": 0.01 } ]
+}
+
+### API-63 | Quantidade 1000000 (BUG-02)
+# Esperado: 422 QUANTIDADE_MAXIMA_EXCEDIDA
+POST {{baseUrl}}/api/carrinho/calcular
+Content-Type: application/json
+
+{
+  "itens": [ { "produtoId": "P001", "quantidade": 1000000 } ]
+}
+
+### API-64 | CEP com espaco
+# Esperado: 422 DADOS_INVALIDOS, campo cliente.cep
+POST {{baseUrl}}/api/pedidos
+Content-Type: application/json
+
+{
+  "cliente": { "nome": "Maria Silva", "email": "maria@exemplo.com", "cep": "01310 100" },
+  "itens": [ { "produtoId": "P001", "quantidade": 1 } ]
+}
+
+### API-65 | Sobrenome so com numeros (BUG-03)
+# Esperado: 422 DADOS_INVALIDOS (interpretacao A05)
+POST {{baseUrl}}/api/pedidos
+Content-Type: application/json
+
+{
+  "cliente": { "nome": "Maria 12", "email": "maria@exemplo.com", "cep": "01310-100" },
+  "itens": [ { "produtoId": "P001", "quantidade": 1 } ]
+}
+
+### API-66 | Espacos nas pontas do nome e do e-mail
+# Esperado: 201; nome retornado "Maria Silva" e e-mail sem espacos
+POST {{baseUrl}}/api/pedidos
+Content-Type: application/json
+
+{
+  "cliente": { "nome": "  Maria Silva  ", "email": "  maria@exemplo.com ", "cep": "01310-100" },
+  "itens": [ { "produtoId": "P001", "quantidade": 1 } ]
+}

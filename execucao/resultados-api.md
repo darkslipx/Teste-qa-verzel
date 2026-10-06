@@ -8,13 +8,13 @@
 
 | Total | Aprovados | Reprovados |
 |---|---|---|
-| 56 | 48 | 8 |
+| 67 | 57 | 10 |
 
 | Bug | Requisições reprovadas |
 |---|---|
 | BUG-01 | API-06, API-07, API-35 |
-| BUG-02 | API-22, API-27, API-39 |
-| BUG-03 | API-41 |
+| BUG-02 | API-22, API-27, API-39, API-63 |
+| BUG-03 | API-41, API-65 |
 | BUG-04 | API-43 |
 
 ## Produtos
@@ -113,13 +113,32 @@
 | API-54 | DELETE em produtos | DELETE /api/produtos | 405 METODO_NAO_PERMITIDO | Aprovado | Resposta no REST Client |
 | API-55 | Rota inexistente | GET /api/cupons | 404 ROTA_NAO_ENCONTRADA | Aprovado | Resposta no REST Client |
 
+## Rodada complementar
+
+Executada depois da primeira rodada para cobrir pontos ainda abertos: regras de cupom e de itens no endpoint de pedidos, tipos inválidos, preço enviado pelo cliente e novas variações dos bugs.
+
+| ID | Requisição | Método | Esperado | Resultado | Evidência |
+|---|---|---|---|---|---|
+| API-56 | Pedido com cupom minúsculo e espaços (CA02) | POST /api/pedidos | 201; cupom aplicado, desconto 5.99 | Aprovado | Resposta no REST Client |
+| API-57 | Pedido com produto inexistente | POST /api/pedidos | 422 PRODUTO_NAO_ENCONTRADO, campo itens[0].produtoId | Aprovado | Resposta no REST Client |
+| API-58 | Pedido com item duplicado | POST /api/pedidos | 422 ITEM_DUPLICADO | Aprovado | Resposta no REST Client |
+| API-59 | Pedido sem itens | POST /api/pedidos | 422 ITENS_OBRIGATORIOS | Aprovado | Resposta no REST Client |
+| API-60 | Cupom como número | POST /api/carrinho/calcular | 200; aplicado false, mensagem Cupom inválido. | Aprovado | Resposta no REST Client |
+| API-61 | produtoId em minúsculo | POST /api/carrinho/calcular | 422 PRODUTO_NAO_ENCONTRADO | Aprovado | Resposta no REST Client |
+| API-62 | Preço enviado no corpo | POST /api/carrinho/calcular | 200; precoUnitario 59.9, preço do cliente ignorado | Aprovado | Resposta no REST Client |
+| API-63 | Quantidade 1000000 (CA10) | POST /api/carrinho/calcular | 422 QUANTIDADE_MAXIMA_EXCEDIDA | **Reprovado (BUG-02)** | [BUG-02-api63-calcular-quantidade-1000000.png](../evidencias/BUG-02-api63-calcular-quantidade-1000000.png) |
+| API-64 | CEP com espaço | POST /api/pedidos | 422 DADOS_INVALIDOS, campo cliente.cep | Aprovado | Resposta no REST Client |
+| API-65 | Sobrenome só com números | POST /api/pedidos | 422 DADOS_INVALIDOS (interpretação A05) | **Reprovado (BUG-03)** | [BUG-03-api65-pedido-sobrenome-numeros.png](../evidencias/BUG-03-api65-pedido-sobrenome-numeros.png) |
+| API-66 | Espaços nas pontas do nome e do e-mail | POST /api/pedidos | 201; nome e e-mail retornados sem espaços | Aprovado | Resposta no REST Client |
+
 ## Observações da execução
 
 * **BUG-01 (API-06, API-07, API-35):** a API retorna frete 19.9 e freteGratis false com subtotal exatamente 200, enquanto valorFaltanteFreteGratis retorna 0, tornando a própria resposta inconsistente. O endpoint de pedidos (API-35) também cobra o frete e gera o pedido com total 219.9. Como os cálculos são feitos pela API, a falha está na regra do servidor.
-* **BUG-02 (API-22, API-27, API-39):** a API não valida o limite de 5 unidades em nenhuma posição da lista. No endpoint de pedidos, retorna 201 Created e gera pedido com 6 unidades.
-* **BUG-03 (API-41):** nome sem sobrenome (API-40) é recusado corretamente, mas um segundo termo composto apenas de símbolos é aceito. A validação verifica apenas a existência de duas palavras, sem validar seu conteúdo.
+* **BUG-02 (API-22, API-27, API-39):** a API não valida o limite de 5 unidades em nenhuma posição da lista. No endpoint de pedidos, retorna 201 Created e gera pedido com 6 unidades. Não existe teto: 1.000.000 unidades também são aceitas, com subtotal de 59.900.000 (API-63).
+* **BUG-03 (API-41, API-65):** nome sem sobrenome (API-40) é recusado corretamente, mas um segundo termo composto apenas de símbolos (API-41) ou de números (API-65) é aceito. A validação verifica apenas a existência de duas palavras, sem validar seu conteúdo.
 * **BUG-04 (API-43):** e-mails sem @ (API-44) e sem extensão de domínio (API-45) são recusados corretamente, mas um domínio composto por caracteres inválidos é aceito. A validação verifica apenas o padrão geral texto@texto.texto, sem validar os caracteres do domínio.
 * **API-19:** comportamento com cupom vazio não definido na documentação. Interpretação registrada em AMBIGUIDADES.md (A01).
 * **API-20 e API-20b:** cupom enviado como lista não gera desconto. Detalhes em AMBIGUIDADES.md (A02).
 * As validações de quantidade inteira (0, negativa, decimal e texto), itens obrigatórios, item inválido, produto inexistente, item duplicado, dados do cliente e erros de protocolo (400, 404 e 405) funcionaram conforme a tabela de códigos de erro da documentação.
+* **Rodada complementar:** as regras de cupom (CA02, CA03, CA04) e de itens valem também no endpoint de pedidos. A API ignora o preço enviado pelo cliente e usa sempre o preço cadastrado, o que impede a manipulação do valor.
 * **Evidências:** as requisições reprovadas têm print em evidencias/. As demais foram conferidas na resposta do REST Client e podem ser reexecutadas pelo arquivo execucao/verzel-store-api.http.
