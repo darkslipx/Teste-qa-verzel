@@ -1,0 +1,876 @@
+# Verzel Store: testes manuais da API
+# Extensão: REST Client (VS Code). Clique em "Send Request" acima de cada requisição.
+# O resultado esperado está no comentário de cada uma.
+
+@baseUrl = https://verzel-store.qa-test-verzel-store.workers.dev
+
+
+# 01 Produtos
+
+### API-01 | GET lista de produtos
+# Esperado: 200 com 8 produtos
+GET {{baseUrl}}/api/produtos
+
+### API-02 | GET produto P001
+# Esperado: 200 com Camiseta Essencial, preco 59.9
+GET {{baseUrl}}/api/produtos/P001
+
+### API-03 | GET produto inexistente P999
+# Esperado: 404 PRODUTO_NAO_ENCONTRADO
+GET {{baseUrl}}/api/produtos/P999
+
+
+# 02 Calculo
+
+### API-04 | Exemplo da documentacao
+# Esperado: 200; subtotal 239.7, desconto 23.97, frete 0, total 215.73
+POST {{baseUrl}}/api/carrinho/calcular
+Content-Type: application/json
+
+{
+  "itens": [
+    {
+      "produtoId": "P002",
+      "quantidade": 1
+    },
+    {
+      "produtoId": "P004",
+      "quantidade": 2
+    }
+  ],
+  "cupom": "BEMVINDO10"
+}
+
+### API-05 | Subtotal 199.80 sem cupom
+# Esperado: 200; frete 19.9, freteGratis false, valorFaltanteFreteGratis 0.2, total 219.7
+POST {{baseUrl}}/api/carrinho/calcular
+Content-Type: application/json
+
+{
+  "itens": [
+    {
+      "produtoId": "P001",
+      "quantidade": 1
+    },
+    {
+      "produtoId": "P002",
+      "quantidade": 1
+    }
+  ]
+}
+
+### API-06 | Subtotal 200.00 sem cupom (BUG-01)
+# Esperado: 200; frete 0, freteGratis true, valorFaltanteFreteGratis 0, total 200 (CA06)
+POST {{baseUrl}}/api/carrinho/calcular
+Content-Type: application/json
+
+{
+  "itens": [
+    {
+      "produtoId": "P005",
+      "quantidade": 2
+    }
+  ]
+}
+
+### API-07 | Subtotal 200.00 com cupom (BUG-01)
+# Esperado: 200; desconto 20, frete 0, total 180
+POST {{baseUrl}}/api/carrinho/calcular
+Content-Type: application/json
+
+{
+  "itens": [
+    {
+      "produtoId": "P005",
+      "quantidade": 2
+    }
+  ],
+  "cupom": "BEMVINDO10"
+}
+
+### API-08 | Subtotal 219.80 com cupom (CA08)
+# Esperado: 200; desconto 21.98, frete 0, total 197.82
+POST {{baseUrl}}/api/carrinho/calcular
+Content-Type: application/json
+
+{
+  "itens": [
+    {
+      "produtoId": "P003",
+      "quantidade": 1
+    },
+    {
+      "produtoId": "P006",
+      "quantidade": 1
+    }
+  ],
+  "cupom": "BEMVINDO10"
+}
+
+### API-09 | Abaixo de 200 com cupom (CA09)
+# Esperado: 200; desconto 10, frete 19.9, total 109.9
+POST {{baseUrl}}/api/carrinho/calcular
+Content-Type: application/json
+
+{
+  "itens": [
+    {
+      "produtoId": "P005",
+      "quantidade": 1
+    }
+  ],
+  "cupom": "BEMVINDO10"
+}
+
+### API-10 | Arredondamento P006 x3 com cupom (CA11)
+# Esperado: 200; subtotal 89.7, desconto 8.97, frete 19.9, total 100.63, todos com 2 casas
+POST {{baseUrl}}/api/carrinho/calcular
+Content-Type: application/json
+
+{
+  "itens": [
+    {
+      "produtoId": "P006",
+      "quantidade": 3
+    }
+  ],
+  "cupom": "BEMVINDO10"
+}
+
+### API-11 | Arredondamento P001 x3 (CA11)
+# Esperado: 200; subtotal 179.7, valorFaltanteFreteGratis 20.3, total 199.6
+POST {{baseUrl}}/api/carrinho/calcular
+Content-Type: application/json
+
+{
+  "itens": [
+    {
+      "produtoId": "P001",
+      "quantidade": 3
+    }
+  ]
+}
+
+### API-12 | Carrinho maximo todos produtos
+# Esperado: 200; subtotal 4247, frete 0, total 4247
+POST {{baseUrl}}/api/carrinho/calcular
+Content-Type: application/json
+
+{
+  "itens": [
+    {
+      "produtoId": "P001",
+      "quantidade": 5
+    },
+    {
+      "produtoId": "P002",
+      "quantidade": 5
+    },
+    {
+      "produtoId": "P003",
+      "quantidade": 5
+    },
+    {
+      "produtoId": "P004",
+      "quantidade": 5
+    },
+    {
+      "produtoId": "P005",
+      "quantidade": 5
+    },
+    {
+      "produtoId": "P006",
+      "quantidade": 5
+    },
+    {
+      "produtoId": "P007",
+      "quantidade": 5
+    },
+    {
+      "produtoId": "P008",
+      "quantidade": 5
+    }
+  ]
+}
+
+
+# 03 Cupom
+
+### API-13 | Cupom minusculo (CA02)
+# Esperado: 200; cupom.aplicado true, desconto 5.99
+POST {{baseUrl}}/api/carrinho/calcular
+Content-Type: application/json
+
+{
+  "itens": [
+    {
+      "produtoId": "P001",
+      "quantidade": 1
+    }
+  ],
+  "cupom": "bemvindo10"
+}
+
+### API-14 | Cupom com espacos (CA02)
+# Esperado: 200; cupom.aplicado true, desconto 5.99
+POST {{baseUrl}}/api/carrinho/calcular
+Content-Type: application/json
+
+{
+  "itens": [
+    {
+      "produtoId": "P001",
+      "quantidade": 1
+    }
+  ],
+  "cupom": "  BEMVINDO10  "
+}
+
+### API-15 | Cupom com espaco interno
+# Esperado: 200; aplicado false, mensagem Cupom inválido.
+POST {{baseUrl}}/api/carrinho/calcular
+Content-Type: application/json
+
+{
+  "itens": [
+    {
+      "produtoId": "P001",
+      "quantidade": 1
+    }
+  ],
+  "cupom": "BEM VINDO10"
+}
+
+### API-16 | Cupom inexistente (CA03)
+# Esperado: 200; aplicado false, desconto 0, mensagem Cupom inválido.
+POST {{baseUrl}}/api/carrinho/calcular
+Content-Type: application/json
+
+{
+  "itens": [
+    {
+      "produtoId": "P001",
+      "quantidade": 1
+    }
+  ],
+  "cupom": "XYZ"
+}
+
+### API-17 | Cupom expirado (CA04)
+# Esperado: 200; aplicado false, desconto 0, mensagem Cupom expirado.
+POST {{baseUrl}}/api/carrinho/calcular
+Content-Type: application/json
+
+{
+  "itens": [
+    {
+      "produtoId": "P001",
+      "quantidade": 1
+    }
+  ],
+  "cupom": "VERAO2026"
+}
+
+### API-18 | Cupom expirado minusculo
+# Esperado: 200; mensagem Cupom expirado.
+POST {{baseUrl}}/api/carrinho/calcular
+Content-Type: application/json
+
+{
+  "itens": [
+    {
+      "produtoId": "P001",
+      "quantidade": 1
+    }
+  ],
+  "cupom": "verao2026"
+}
+
+### API-19 | Cupom vazio
+# Esperado: Indefinido na doc; registrar comportamento (ambiguidade)
+POST {{baseUrl}}/api/carrinho/calcular
+Content-Type: application/json
+
+{
+  "itens": [
+    {
+      "produtoId": "P001",
+      "quantidade": 1
+    }
+  ],
+  "cupom": ""
+}
+
+### API-20 | Cupom como lista (CA05)
+# Esperado: Indefinido; nao deve aplicar dois cupons
+POST {{baseUrl}}/api/carrinho/calcular
+Content-Type: application/json
+
+{
+  "itens": [
+    {
+      "produtoId": "P001",
+      "quantidade": 1
+    }
+  ],
+  "cupom": [
+    "BEMVINDO10",
+    "VERAO2026"
+  ]
+}
+
+### API-20b | Cupom como lista de um item
+# Esperado: indefinido; nao deve aplicar desconto
+POST {{baseUrl}}/api/carrinho/calcular
+Content-Type: application/json
+
+{
+  "itens": [
+    { "produtoId": "P001", "quantidade": 1 }
+  ],
+  "cupom": ["BEMVINDO10"]
+}
+
+# 04 Quantidade
+
+### API-21 | Quantidade 5 (limite)
+# Esperado: 200; subtotal 299.5
+POST {{baseUrl}}/api/carrinho/calcular
+Content-Type: application/json
+
+{
+  "itens": [
+    {
+      "produtoId": "P001",
+      "quantidade": 5
+    }
+  ]
+}
+
+### API-22 | Quantidade 6 (CA10) (BUG-02)
+# Esperado: 422 QUANTIDADE_MAXIMA_EXCEDIDA, campo itens[0].quantidade
+POST {{baseUrl}}/api/carrinho/calcular
+Content-Type: application/json
+
+{
+  "itens": [
+    {
+      "produtoId": "P001",
+      "quantidade": 6
+    }
+  ]
+}
+
+### API-23 | Quantidade 0
+# Esperado: 422 QUANTIDADE_INVALIDA
+POST {{baseUrl}}/api/carrinho/calcular
+Content-Type: application/json
+
+{
+  "itens": [
+    {
+      "produtoId": "P001",
+      "quantidade": 0
+    }
+  ]
+}
+
+### API-24 | Quantidade negativa
+# Esperado: 422 QUANTIDADE_INVALIDA
+POST {{baseUrl}}/api/carrinho/calcular
+Content-Type: application/json
+
+{
+  "itens": [
+    {
+      "produtoId": "P001",
+      "quantidade": -1
+    }
+  ]
+}
+
+### API-25 | Quantidade decimal
+# Esperado: 422 QUANTIDADE_INVALIDA
+POST {{baseUrl}}/api/carrinho/calcular
+Content-Type: application/json
+
+{
+  "itens": [
+    {
+      "produtoId": "P001",
+      "quantidade": 1.5
+    }
+  ]
+}
+
+### API-26 | Quantidade como texto
+# Esperado: 422 QUANTIDADE_INVALIDA
+POST {{baseUrl}}/api/carrinho/calcular
+Content-Type: application/json
+
+{
+  "itens": [
+    {
+      "produtoId": "P001",
+      "quantidade": "2"
+    }
+  ]
+}
+
+### API-27 | Quantidade 6 no segundo item
+# Esperado: 422 QUANTIDADE_MAXIMA_EXCEDIDA, campo itens[1].quantidade
+POST {{baseUrl}}/api/carrinho/calcular
+Content-Type: application/json
+
+{
+  "itens": [
+    {
+      "produtoId": "P001",
+      "quantidade": 1
+    },
+    {
+      "produtoId": "P002",
+      "quantidade": 6
+    }
+  ]
+}
+
+
+# 05 Itens
+
+### API-28 | Lista vazia
+# Esperado: 422 ITENS_OBRIGATORIOS
+POST {{baseUrl}}/api/carrinho/calcular
+Content-Type: application/json
+
+{
+  "itens": []
+}
+
+### API-29 | Sem campo itens
+# Esperado: 422 ITENS_OBRIGATORIOS
+POST {{baseUrl}}/api/carrinho/calcular
+Content-Type: application/json
+
+{
+  "cupom": "BEMVINDO10"
+}
+
+### API-30 | Item sem quantidade
+# Esperado: 422 ITEM_INVALIDO
+POST {{baseUrl}}/api/carrinho/calcular
+Content-Type: application/json
+
+{
+  "itens": [
+    {
+      "produtoId": "P001"
+    }
+  ]
+}
+
+### API-31 | Produto inexistente
+# Esperado: 422 PRODUTO_NAO_ENCONTRADO
+POST {{baseUrl}}/api/carrinho/calcular
+Content-Type: application/json
+
+{
+  "itens": [
+    {
+      "produtoId": "P999",
+      "quantidade": 1
+    }
+  ]
+}
+
+### API-32 | Item duplicado
+# Esperado: 422 ITEM_DUPLICADO
+POST {{baseUrl}}/api/carrinho/calcular
+Content-Type: application/json
+
+{
+  "itens": [
+    {
+      "produtoId": "P001",
+      "quantidade": 1
+    },
+    {
+      "produtoId": "P001",
+      "quantidade": 1
+    }
+  ]
+}
+
+### API-33 | Duplicado somando 6 (burla do limite)
+# Esperado: 422 ITEM_DUPLICADO; nunca calcular 6 unidades
+POST {{baseUrl}}/api/carrinho/calcular
+Content-Type: application/json
+
+{
+  "itens": [
+    {
+      "produtoId": "P001",
+      "quantidade": 3
+    },
+    {
+      "produtoId": "P001",
+      "quantidade": 3
+    }
+  ]
+}
+
+
+# 06 Pedido
+
+### API-34 | Pedido valido com cupom
+# Esperado: 201; numero VZ-000000, cep 01310100, total 109.9
+POST {{baseUrl}}/api/pedidos
+Content-Type: application/json
+
+{
+  "cliente": {
+    "nome": "Maria Silva",
+    "email": "maria@exemplo.com",
+    "cep": "01310-100"
+  },
+  "itens": [
+    {
+      "produtoId": "P005",
+      "quantidade": 1
+    }
+  ],
+  "cupom": "BEMVINDO10"
+}
+
+### API-35 | Pedido 200.00 (BUG-01)
+# Esperado: 201; frete 0, total 200
+POST {{baseUrl}}/api/pedidos
+Content-Type: application/json
+
+{
+  "cliente": {
+    "nome": "Maria Silva",
+    "email": "maria@exemplo.com",
+    "cep": "01310-100"
+  },
+  "itens": [
+    {
+      "produtoId": "P005",
+      "quantidade": 2
+    }
+  ]
+}
+
+### API-36 | Pedido cupom inexistente
+# Esperado: 422 CUPOM_INVALIDO
+POST {{baseUrl}}/api/pedidos
+Content-Type: application/json
+
+{
+  "cliente": {
+    "nome": "Maria Silva",
+    "email": "maria@exemplo.com",
+    "cep": "01310-100"
+  },
+  "itens": [
+    {
+      "produtoId": "P001",
+      "quantidade": 1
+    }
+  ],
+  "cupom": "XYZ"
+}
+
+### API-37 | Pedido CEP sem hifen
+# Esperado: 201; cep 01310100
+POST {{baseUrl}}/api/pedidos
+Content-Type: application/json
+
+{
+  "cliente": {
+    "nome": "Maria Silva",
+    "email": "maria@exemplo.com",
+    "cep": "01310100"
+  },
+  "itens": [
+    {
+      "produtoId": "P001",
+      "quantidade": 1
+    }
+  ]
+}
+
+### API-38 | Pedido cupom expirado
+# Esperado: 422 CUPOM_EXPIRADO
+POST {{baseUrl}}/api/pedidos
+Content-Type: application/json
+
+{
+  "cliente": {
+    "nome": "Maria Silva",
+    "email": "maria@exemplo.com",
+    "cep": "01310-100"
+  },
+  "itens": [
+    {
+      "produtoId": "P001",
+      "quantidade": 1
+    }
+  ],
+  "cupom": "VERAO2026"
+}
+
+### API-39 | Pedido quantidade 6 (BUG-02)
+# Esperado: 422 QUANTIDADE_MAXIMA_EXCEDIDA
+POST {{baseUrl}}/api/pedidos
+Content-Type: application/json
+
+{
+  "cliente": {
+    "nome": "Maria Silva",
+    "email": "maria@exemplo.com",
+    "cep": "01310-100"
+  },
+  "itens": [
+    {
+      "produtoId": "P001",
+      "quantidade": 6
+    }
+  ]
+}
+
+
+# 07 Cliente
+
+### API-40 | Nome sem sobrenome
+# Esperado: 422 DADOS_INVALIDOS, campos com nome
+POST {{baseUrl}}/api/pedidos
+Content-Type: application/json
+
+{
+  "cliente": {
+    "nome": "Maria",
+    "email": "maria@exemplo.com",
+    "cep": "01310-100"
+  },
+  "itens": [
+    {
+      "produtoId": "P001",
+      "quantidade": 1
+    }
+  ]
+}
+
+### API-41 | Nome com simbolos (BUG-03)
+# Esperado: 422 DADOS_INVALIDOS (interpretacao)
+POST {{baseUrl}}/api/pedidos
+Content-Type: application/json
+
+{
+  "cliente": {
+    "nome": "Abner @@",
+    "email": "maria@exemplo.com",
+    "cep": "01310-100"
+  },
+  "itens": [
+    {
+      "produtoId": "P001",
+      "quantidade": 1
+    }
+  ]
+}
+
+### API-42 | Nome so espacos
+# Esperado: 422 DADOS_INVALIDOS
+POST {{baseUrl}}/api/pedidos
+Content-Type: application/json
+
+{
+  "cliente": {
+    "nome": "   ",
+    "email": "maria@exemplo.com",
+    "cep": "01310-100"
+  },
+  "itens": [
+    {
+      "produtoId": "P001",
+      "quantidade": 1
+    }
+  ]
+}
+
+### API-43 | Email dominio invalido (BUG-04)
+# Esperado: 422 DADOS_INVALIDOS
+POST {{baseUrl}}/api/pedidos
+Content-Type: application/json
+
+{
+  "cliente": {
+    "nome": "Maria Silva",
+    "email": "abnerduartw@!!!!.com",
+    "cep": "01310-100"
+  },
+  "itens": [
+    {
+      "produtoId": "P001",
+      "quantidade": 1
+    }
+  ]
+}
+
+### API-44 | Email sem arroba
+# Esperado: 422 DADOS_INVALIDOS
+POST {{baseUrl}}/api/pedidos
+Content-Type: application/json
+
+{
+  "cliente": {
+    "nome": "Maria Silva",
+    "email": "mariaexemplo.com",
+    "cep": "01310-100"
+  },
+  "itens": [
+    {
+      "produtoId": "P001",
+      "quantidade": 1
+    }
+  ]
+}
+
+### API-45 | Email sem extensao
+# Esperado: 422 DADOS_INVALIDOS
+POST {{baseUrl}}/api/pedidos
+Content-Type: application/json
+
+{
+  "cliente": {
+    "nome": "Maria Silva",
+    "email": "maria@exemplo",
+    "cep": "01310-100"
+  },
+  "itens": [
+    {
+      "produtoId": "P001",
+      "quantidade": 1
+    }
+  ]
+}
+
+### API-46 | CEP 7 digitos
+# Esperado: 422 DADOS_INVALIDOS
+POST {{baseUrl}}/api/pedidos
+Content-Type: application/json
+
+{
+  "cliente": {
+    "nome": "Maria Silva",
+    "email": "maria@exemplo.com",
+    "cep": "0131010"
+  },
+  "itens": [
+    {
+      "produtoId": "P001",
+      "quantidade": 1
+    }
+  ]
+}
+
+### API-47 | CEP 9 digitos
+# Esperado: 422 DADOS_INVALIDOS
+POST {{baseUrl}}/api/pedidos
+Content-Type: application/json
+
+{
+  "cliente": {
+    "nome": "Maria Silva",
+    "email": "maria@exemplo.com",
+    "cep": "013101000"
+  },
+  "itens": [
+    {
+      "produtoId": "P001",
+      "quantidade": 1
+    }
+  ]
+}
+
+### API-48 | CEP com letras
+# Esperado: 422 DADOS_INVALIDOS
+POST {{baseUrl}}/api/pedidos
+Content-Type: application/json
+
+{
+  "cliente": {
+    "nome": "Maria Silva",
+    "email": "maria@exemplo.com",
+    "cep": "0131A100"
+  },
+  "itens": [
+    {
+      "produtoId": "P001",
+      "quantidade": 1
+    }
+  ]
+}
+
+### API-49 | Varios campos invalidos
+# Esperado: 422 DADOS_INVALIDOS com os 3 campos em campos
+POST {{baseUrl}}/api/pedidos
+Content-Type: application/json
+
+{
+  "cliente": {
+    "nome": "Maria",
+    "email": "x",
+    "cep": "1"
+  },
+  "itens": [
+    {
+      "produtoId": "P001",
+      "quantidade": 1
+    }
+  ]
+}
+
+### API-50 | Sem objeto cliente
+# Esperado: 422 DADOS_INVALIDOS
+POST {{baseUrl}}/api/pedidos
+Content-Type: application/json
+
+{
+  "itens": [
+    {
+      "produtoId": "P001",
+      "quantidade": 1
+    }
+  ]
+}
+
+
+# 08 Protocolo
+
+### API-51 | JSON malformado
+# Esperado: 400 JSON_INVALIDO
+POST {{baseUrl}}/api/carrinho/calcular
+Content-Type: application/json
+
+{"itens": [ {"produtoId": "P001", 
+
+### API-52 | Corpo e uma lista
+# Esperado: 400 JSON_INVALIDO (nao e objeto)
+POST {{baseUrl}}/api/carrinho/calcular
+Content-Type: application/json
+
+[1,2,3]
+
+### API-53 | GET no calcular
+# Esperado: 405 METODO_NAO_PERMITIDO
+GET {{baseUrl}}/api/carrinho/calcular
+
+### API-54 | DELETE em produtos
+# Esperado: 405 METODO_NAO_PERMITIDO
+DELETE {{baseUrl}}/api/produtos
+
+### API-55 | Rota inexistente
+# Esperado: 404 ROTA_NAO_ENCONTRADA
+GET {{baseUrl}}/api/cupons

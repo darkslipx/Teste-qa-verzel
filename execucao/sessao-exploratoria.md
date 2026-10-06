@@ -23,11 +23,12 @@
 |---|---|
 | Subtotal de exatamente R$ 200,00 cobra frete de R$ 19,90, exibindo ao mesmo tempo "Faltam R$ 0,00 para o frete grátis" | BUG-01 |
 | Teste de isolamento com subtotal R$ 219,80 e cupom confirmou que a falha ocorre apenas no valor limite, e não na regra do CA08 | Diagnóstico do BUG-01 |
-| E-mail com domínio contendo símbolos (abnerduartw@!!!!.com) é aceito | BUG-02 |
+| E-mail com domínio contendo símbolos (abnerduartw@!!!!.com) é aceito | BUG-04 |
 | Sobrenome composto apenas de símbolos ou números com 2 caracteres é aceito | BUG-03 |
-| Qualquer CEP de 8 dígitos é aceito | Comportamento esperado |
-| Cupom permanece aplicado após recarregar a página | Comportamento esperado |
+| Interface bloqueia a sexta unidade, mas a API aceita quantidade acima de 5 (verificado depois, na execução da API) | BUG-02 |
+| Qualquer CEP de 8 dígitos é aceito | Comportamento esperado (A03) |
+| Cupom permanece aplicado após recarregar a página | Comportamento esperado (A04) |
 
 ## Conclusão
 
-O fluxo principal de carrinho e cupom está estável: cálculos por item, subtotal, desconto, arredondamento, mensagens de cupom e limite de quantidade funcionaram conforme os critérios. As falhas encontradas concentram-se no valor limite do frete grátis e na validação dos dados do cliente.
+O fluxo principal de carrinho e cupom está estável: cálculos por item, subtotal, desconto, arredondamento, mensagens de cupom e limite de quantidade funcionaram conforme os critérios. As falhas encontradas concentram-se no valor limite do frete grátis, no limite de quantidade aplicado apenas na interface e na validação dos dados do cliente.
