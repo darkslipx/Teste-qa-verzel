@@ -9,7 +9,7 @@
 | Onde ocorre | API (`/api/carrinho/calcular` e `/api/pedidos`). A interface bloqueia corretamente |
 | Ambiente | https://verzel-store.qa-test-verzel-store.workers.dev/api, REST Client (VS Code) |
 | Data | 06/10/2026 |
-| Casos reprovados | API-22, API-27, API-39 |
+| Casos reprovados | API-22, API-27, API-39, API-63 |
 
 ## Descrição
 
@@ -34,6 +34,7 @@ Status 422 com código `QUANTIDADE_MAXIMA_EXCEDIDA`, indicando o campo `itens[0]
 
 * `/api/carrinho/calcular`: status 200, item com `quantidade: 6` e `total: 359.4`.
 * `/api/pedidos`: status **201 Created**, pedido `VZ-941889` gerado com 6 unidades.
+* Não existe teto: com `quantidade: 1000000` (API-63) a API responde 200 com subtotal de 59.900.000.
 
 ## Observações
 
@@ -45,4 +46,5 @@ Status 422 com código `QUANTIDADE_MAXIMA_EXCEDIDA`, indicando o campo `itens[0]
 
 * API-22: [BUG-02-api22-calcular-quantidade-6.png](../evidencias/BUG-02-api22-calcular-quantidade-6.png)
 * API-39: [BUG-02-api39-pedido-quantidade-6.png](../evidencias/BUG-02-api39-pedido-quantidade-6.png)
+* API-63: [BUG-02-api63-calcular-quantidade-1000000.png](../evidencias/BUG-02-api63-calcular-quantidade-1000000.png)
 * Teste automatizado em `automacao/` (falha de propósito enquanto o bug existir).

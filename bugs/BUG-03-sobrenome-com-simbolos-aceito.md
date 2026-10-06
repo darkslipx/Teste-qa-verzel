@@ -9,7 +9,7 @@
 | Onde ocorre | Interface (formulário de finalização) e API (`/api/pedidos`) |
 | Ambiente | https://verzel-store.qa-test-verzel-store.workers.dev/, Google Chrome, Windows e REST Client |
 | Data | 06/10/2026 |
-| Casos reprovados | UI-26, API-41 |
+| Casos reprovados | UI-26, API-41, API-65 |
 | Interpretação | A05 em [AMBIGUIDADES.md](../AMBIGUIDADES.md) |
 
 ## Descrição
@@ -42,6 +42,8 @@ Pedido recusado. Na API, status 422 `DADOS_INVALIDOS` com `nome` na lista de cam
 
 Pedido criado. Na API, status **201 Created**, número `VZ-266813`.
 
+O mesmo acontece com um sobrenome só de números: `Maria 12` gera o pedido `VZ-180329` (API-65).
+
 ## Observações
 
 * Nome sem sobrenome (API-40) e nome só com espaços (API-42) são recusados corretamente.
@@ -50,4 +52,5 @@ Pedido criado. Na API, status **201 Created**, número `VZ-266813`.
 ## Evidências
 
 * API-41: [BUG-03-api41-pedido-sobrenome-simbolos.png](../evidencias/BUG-03-api41-pedido-sobrenome-simbolos.png)
+* API-65: [BUG-03-api65-pedido-sobrenome-numeros.png](../evidencias/BUG-03-api65-pedido-sobrenome-numeros.png)
 * UI-26: [BUG-03-ui26-sobrenome-simbolos.png](../evidencias/BUG-03-ui26-sobrenome-simbolos.png) (o campo nome não exibe erro, enquanto o CEP com 7 dígitos exibe)
