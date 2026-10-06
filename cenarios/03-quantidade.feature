@@ -53,6 +53,12 @@ Funcionalidade: Limite de quantidade por produto
       | API-27 | /api/carrinho/calcular  | 1       |
       | API-39 | /api/pedidos            | 0       |
 
+  @API-63 @CA10 @BUG-02
+  Cenário: API recusa quantidade muito acima do limite
+    Quando envio para o cálculo do carrinho 1000000 unidades de "P001"
+    Então a resposta tem status 422
+    E o código de erro é "QUANTIDADE_MAXIMA_EXCEDIDA"
+
   @API-23 @API-24 @API-25 @API-26
   Esquema do Cenário: API recusa quantidade que não é inteiro positivo
     Quando envio para o cálculo do carrinho a quantidade <quantidade> de "P001"

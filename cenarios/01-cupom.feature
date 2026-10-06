@@ -65,6 +65,21 @@ Funcionalidade: Cupom de desconto
     Quando digito "BEMVINDO10" no campo de cupom e pressiono Enter
     Então o cupom BEMVINDO10 é aplicado
 
+  @UI-31 @CA01 @CA10
+  Cenário: Desconto acompanha a mudança de quantidade
+    Dado que o carrinho tem apenas 3 unidades de "Mochila Urbana 20L" e o cupom "BEMVINDO10" aplicado
+    Quando diminuo a quantidade para 2 e depois para 1
+    Então o desconto passa de R$ 30,00 para R$ 20,00 e depois para R$ 10,00
+    E com 1 unidade o botão "-" fica desabilitado
+
+  @UI-32 @CA04 @CA05
+  Cenário: Cupom válido depois de um expirado
+    Quando aplico o cupom "VERAO2026"
+    E vejo a mensagem "Cupom expirado."
+    E aplico o cupom "BEMVINDO10"
+    Então o cupom BEMVINDO10 é aplicado
+    E o desconto é de R$ 5,99
+
   @UI-22 @A04
   Cenário: Cupom continua aplicado após recarregar a página
     Dado que apliquei o cupom "BEMVINDO10"

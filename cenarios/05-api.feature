@@ -131,7 +131,7 @@ Funcionalidade: API da Verzel Store
       | API-36 | XYZ       | CUPOM_INVALIDO  |
       | API-38 | VERAO2026 | CUPOM_EXPIRADO  |
 
-  @API-40 @API-41 @API-42 @API-43 @API-44 @API-45 @API-46 @API-47 @API-48
+  @API-40 @API-41 @API-42 @API-43 @API-44 @API-45 @API-46 @API-47 @API-48 @API-64 @API-65
   Esquema do Cenário: Validação dos dados do cliente
     Quando envio para "/api/pedidos" o cliente com <campo> igual a "<valor>"
     Então a resposta tem status 422
@@ -149,6 +149,8 @@ Funcionalidade: API da Verzel Store
       | API-46 | cep   | 0131010              | 7 dígitos   |
       | API-47 | cep   | 013101000            | 9 dígitos   |
       | API-48 | cep   | 0131A100             | com letra   |
+      | API-64 | cep   | 01310 100            | com espaço  |
+      | API-65 | nome  | Maria 12             | BUG-03, A05 |
 
   @API-49 @API-50
   Cenário: Vários campos inválidos ou cliente ausente
@@ -156,6 +158,50 @@ Funcionalidade: API da Verzel Store
     Então a resposta tem status 422 com código "DADOS_INVALIDOS" e os 3 campos listados
     Quando envio para "/api/pedidos" um pedido sem o objeto cliente
     Então a resposta tem status 422 com código "DADOS_INVALIDOS"
+
+  # Rodada complementar
+
+  @API-56 @CA02
+  Cenário: Regra do cupom vale também no pedido
+    Quando envio para "/api/pedidos" um cliente válido com 1 "P001" e o cupom "  bemvindo10  "
+    Então a resposta tem status 201
+    E o desconto é 5.99
+
+  @API-57 @API-58 @API-59
+  Esquema do Cenário: Validação dos itens também no pedido
+    Quando envio para "/api/pedidos" um cliente válido com <itens>
+    Então a resposta tem status 422
+    E o código de erro é "<codigo>"
+
+    Exemplos:
+      | caso   | itens                  | codigo                 |
+      | API-57 | produto P999           | PRODUTO_NAO_ENCONTRADO |
+      | API-58 | P001 repetido na lista | ITEM_DUPLICADO         |
+      | API-59 | lista vazia            | ITENS_OBRIGATORIOS     |
+
+  @API-60
+  Cenário: Cupom enviado como número
+    Quando envio para "/api/carrinho/calcular" 1 "P001" com o cupom 123
+    Então a resposta tem status 200
+    E cupom.aplicado é false com a mensagem "Cupom inválido."
+
+  @API-61
+  Cenário: Id do produto diferencia maiúsculas
+    Quando envio para "/api/carrinho/calcular" 1 "p001"
+    Então a resposta tem status 422
+    E o código de erro é "PRODUTO_NAO_ENCONTRADO"
+
+  @API-62
+  Cenário: Preço enviado pelo cliente é ignorado
+    Quando envio para "/api/carrinho/calcular" 1 "P001" com precoUnitario 0.01
+    Então a resposta tem status 200
+    E o precoUnitario retornado é 59.9
+
+  @API-66
+  Cenário: Espaços nas pontas do nome e do e-mail são removidos
+    Quando envio para "/api/pedidos" o nome "  Maria Silva  " e o e-mail "  maria@exemplo.com "
+    Então a resposta tem status 201
+    E o pedido traz o nome "Maria Silva" e o e-mail "maria@exemplo.com"
 
   # Protocolo
 
