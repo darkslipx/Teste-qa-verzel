@@ -27,7 +27,9 @@ Capturadas no VS Code com a extensão REST Client. A requisição e o resultado 
 | [BUG-01-api07-calcular-200-com-cupom.png](BUG-01-api07-calcular-200-com-cupom.png) | BUG-01 | API-07 | 2 Mochilas com BEMVINDO10: desconto 20, frete 19.9, total 199.9 em vez de 180 |
 | [BUG-02-api22-calcular-quantidade-6.png](BUG-02-api22-calcular-quantidade-6.png) | BUG-02 | API-22 | Cálculo com 6 unidades responde 200 em vez de 422 QUANTIDADE_MAXIMA_EXCEDIDA |
 | [BUG-02-api39-pedido-quantidade-6.png](BUG-02-api39-pedido-quantidade-6.png) | BUG-02 | API-39 | Pedido com 6 unidades criado (201, VZ-941889) |
+| [BUG-02-api63-calcular-quantidade-1000000.png](BUG-02-api63-calcular-quantidade-1000000.png) | BUG-02 | API-63 | Cálculo com 1.000.000 unidades responde 200, subtotal 59.900.000 |
 | [BUG-03-api41-pedido-sobrenome-simbolos.png](BUG-03-api41-pedido-sobrenome-simbolos.png) | BUG-03 | API-41 | Pedido com nome "Abner @@" criado (201, VZ-266813) |
+| [BUG-03-api65-pedido-sobrenome-numeros.png](BUG-03-api65-pedido-sobrenome-numeros.png) | BUG-03 | API-65 | Pedido com nome "Maria 12" criado (201, VZ-180329) |
 | [BUG-04-api43-pedido-email-dominio-invalido.png](BUG-04-api43-pedido-email-dominio-invalido.png) | BUG-04 | API-43 | Pedido com e-mail "abnerduartw@!!!!.com" criado (201, VZ-177303) |
 
 ## Demais evidências
@@ -39,6 +41,6 @@ Capturadas no VS Code com a extensão REST Client. A requisição e o resultado 
 
 | Print | O que mostra |
 |---|---|
-| [automacao-relatorio-playwright.png](automacao-relatorio-playwright.png) | Relatório HTML do Playwright em 06/10/2026: 6 testes, 3 aprovados e 3 reprovados pelos bugs (API-06 e UI-03 pelo BUG-01, API-22 pelo BUG-02) |
+| [automacao-relatorio-playwright.png](automacao-relatorio-playwright.png) | Relatório HTML do Playwright em 06/10/2026: 13 execuções, 7 aprovadas e 6 reprovadas pelos bugs (UI-03 em Chrome, Firefox, Safari e mobile e API-06 pelo BUG-01, API-22 pelo BUG-02) |
 
 Ao rodar a automação, o Playwright gera um novo relatório em `automacao/playwright-report`, com print da tela e trace de cada teste que falhou (instruções no [README principal](../README.md)).
