@@ -36,6 +36,28 @@ test.describe('API: POST /api/pedidos', () => {
   );
 
   test(
+    'API-36: pedido com cupom inexistente é recusado',
+    { tag: ['@CA03'] },
+    async ({ request }) => {
+      const resposta = await request.post('/api/pedidos', {
+        data: {
+          cliente: clienteValido,
+          itens: [{ produtoId: 'P001', quantidade: 1 }],
+          cupom: 'XYZ',
+        },
+      });
+
+      // No cálculo do carrinho um cupom inválido responde 200. No pedido, a documentação pede 422.
+      expect(resposta.status()).toBe(422);
+      const corpo = await resposta.json();
+      expect(corpo.erro).toMatchObject({
+        codigo: 'CUPOM_INVALIDO',
+        campo: 'cupom',
+      });
+    },
+  );
+
+  test(
     'API-38: pedido com cupom expirado é recusado',
     { tag: ['@CA04'] },
     async ({ request }) => {

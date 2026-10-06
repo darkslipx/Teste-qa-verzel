@@ -16,9 +16,31 @@ export default defineConfig({
   },
 
   projects: [
+    // Testes de API não abrem navegador, então rodam uma vez só.
     {
-      name: 'chromium',
+      name: 'api',
+      testDir: './tests/api',
+    },
+    // Testes de interface rodam nos três motores de navegador e na visualização mobile.
+    {
+      name: 'chrome',
+      testDir: './tests/ui',
       use: { ...devices['Desktop Chrome'] },
+    },
+    {
+      name: 'firefox',
+      testDir: './tests/ui',
+      use: { ...devices['Desktop Firefox'] },
+    },
+    {
+      name: 'safari',
+      testDir: './tests/ui',
+      use: { ...devices['Desktop Safari'] },
+    },
+    {
+      name: 'mobile',
+      testDir: './tests/ui',
+      use: { ...devices['Pixel 7'] },
     },
   ],
 });

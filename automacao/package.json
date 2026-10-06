@@ -8,8 +8,9 @@
     "test:ui": "playwright test tests/ui",
     "test:api": "playwright test tests/api",
     "test:sem-bugs": "playwright test --grep-invert @bug",
-    "test:headed": "playwright test tests/ui --headed",
-    "report": "playwright show-report"
+    "test:headed": "playwright test --project=chrome --headed",
+    "report": "playwright show-report",
+    "test:bugs": "playwright test --grep @bug"
   },
   "author": "Abner Duarte",
   "license": "ISC",
