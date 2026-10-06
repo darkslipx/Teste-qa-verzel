@@ -1,0 +1,52 @@
+name: Automação Playwright
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  testes:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: automacao
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: automacao/package-lock.json
+
+      - name: Instalar dependências
+        run: npm ci
+
+      - name: Instalar navegadores
+        run: npx playwright install --with-deps chromium firefox webkit
+
+      # Regras que funcionam: precisam passar. Se falharem, o pipeline fica vermelho (regressão).
+      - name: Testes das regras corretas
+        run: npx playwright test --grep-invert @bug --output=test-results/regras
+
+      # Testes que cobrem bugs abertos: falham hoje de propósito, então não bloqueiam o pipeline.
+      - name: Testes dos bugs conhecidos (falha esperada)
+        if: always()
+        continue-on-error: true
+        run: npx playwright test --grep @bug --output=test-results/bugs
+        env:
+          PLAYWRIGHT_HTML_OUTPUT_DIR: playwright-report-bugs
+
+      - name: Publicar relatórios
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: relatorios-playwright
+          path: |
+            automacao/playwright-report/
+            automacao/playwright-report-bugs/
+          retention-days: 14
